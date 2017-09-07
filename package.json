@@ -1,0 +1,37 @@
+{
+	"name": "istanbul-loader",
+	"version": "1.0.0-pre",
+	"description": "A webpack loader that adds code coverage instrumentation",
+	"main": "index.js",
+	"scripts": {
+		"build": "intern-dev-build",
+		"clean": "intern-dev-clean",
+		"test": "NODE_PATH=_build intern"
+	},
+	"keywords": [
+		"intern",
+		"coverage",
+		"istanbul",
+		"testing"
+	],
+	"author": "SitePen",
+	"license": "BSD-3-Clause",
+	"devDependencies": {
+		"@theintern/dev": "~0.5.6",
+		"@types/mockery": "~1.4.29",
+		"@types/sinon": "~2.3.3",
+		"intern": "~4.0.0-alpha.16",
+		"mockery": "~2.1.0",
+		"sinon": "~3.2.1"
+	},
+	"peerDependencies": {
+		"webpack": "^3.0.0",
+		"intern": "^4.0.0-alpha.16",
+		"istanbul-lib-instrument": "^1.0.0"
+	},
+	"dependencies": {
+		"@types/istanbul-lib-instrument": "~1.7.0",
+		"@types/source-map": "~0.5.1",
+		"@types/webpack": "~3.0.10"
+	}
+}
