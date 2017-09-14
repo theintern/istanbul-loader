@@ -2,6 +2,7 @@ import { SinonSandbox, sandbox as Sandbox } from 'sinon';
 import {
 	disable as disableMockery,
 	enable as enableMockery,
+	registerAllowable,
 	registerMock,
 	deregisterMock
 } from 'mockery';
@@ -35,7 +36,8 @@ describe('istanbul-loader', () => {
 				};
 			}
 		});
-		loaderUnderTest = require('src/loader').default;
+		registerAllowable('src/index');
+		loaderUnderTest = require('src/index').default;
 	});
 
 	after(() => {
