@@ -5,6 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "intern-dev-build",
+		"devpack": "intern-dev-build && cd _build/src && npm pack && mv *.tgz ../../",
 		"clean": "intern-dev-clean",
 		"test": "NODE_PATH=_build intern",
 		"watch": "intern-dev-build watch"
