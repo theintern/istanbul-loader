@@ -3,10 +3,10 @@ import { createInstrumenter } from 'istanbul-lib-instrument';
 import { RawSourceMap } from 'source-map';
 
 /**
- * Take a source file and run it through istanbul for instrumentation
+ * Instrument a source file with istanbul for code coverage
  *
  * @param content the source code
- * @param sourceMap The source map object
+ * @param sourceMap an optional source map
  */
 export default <loader.Loader>function(
 	content: string,
@@ -26,10 +26,10 @@ export default <loader.Loader>function(
 	// We need these files to simply be "path/to/file.ts".
 	if (isRawSourceMap(sourceMap)) {
 		rawSourceMap = sourceMap;
-		rawSourceMap!.sources = rawSourceMap!.sources.map(source => {
-			const lastExclaim = source.lastIndexOf('!');
-			if (lastExclaim !== -1) {
-				return source.substr(lastExclaim + 1);
+		sourceMap.sources = sourceMap.sources.map(source => {
+			const lastBang = source.lastIndexOf('!');
+			if (lastBang !== -1) {
+				return source.substr(lastBang + 1);
 			}
 			return source;
 		});
