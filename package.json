@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "intern-dev-build",
 		"clean": "intern-dev-clean",
-		"test": "NODE_PATH=_build intern"
+		"test": "NODE_PATH=_build intern",
+		"watch": "intern-dev-build watch"
 	},
 	"keywords": [
 		"intern",

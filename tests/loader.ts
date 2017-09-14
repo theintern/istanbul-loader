@@ -1,5 +1,10 @@
-import * as sinon from 'sinon';
-import * as mockery from 'mockery';
+import { SinonSandbox, sandbox as Sandbox } from 'sinon';
+import {
+	disable as disableMockery,
+	enable as enableMockery,
+	registerMock,
+	deregisterMock
+} from 'mockery';
 
 const { after, afterEach, before, describe, it } = intern.getInterface('bdd');
 const { assert } = intern.getPlugin('chai');
@@ -14,74 +19,59 @@ describe('istanbul-loader', () => {
 	let loaderUnderTest: any;
 	let instrumentMock: any;
 	let sourceMapMock: any;
-	let sandbox: sinon.SinonSandbox;
+	let sandbox: SinonSandbox;
 
 	before(() => {
-		sandbox = sinon.sandbox.create();
+		sandbox = Sandbox.create();
 		instrumentMock = sandbox.stub().callsArg(2);
 		sourceMapMock = sandbox.stub().returns({});
-		mockery.registerMock('istanbul-lib-instrument', {
-			createInstrumenter: sandbox.stub().returns({
-				instrument: instrumentMock,
-				lastSourceMap: sourceMapMock
-			})
+
+		enableMockery({ useCleanCache: true });
+		registerMock('istanbul-lib-instrument', {
+			createInstrumenter() {
+				return {
+					instrument: instrumentMock,
+					lastSourceMap: sourceMapMock
+				};
+			}
 		});
 		loaderUnderTest = require('src/loader').default;
 	});
 
 	after(() => {
-		mockery.deregisterMock('istanbul-lib-instrument');
+		deregisterMock('istanbul-lib-instrument');
+		disableMockery();
 	});
 
 	afterEach(() => {
-		sandbox.reset();
+		sandbox.resetHistory();
 	});
 
 	it('should call istanbul to instrument files', () => {
 		return new Promise(resolve => {
 			loaderUnderTest.call(
-				{
-					async() {
-						return () => resolve();
-					}
-				},
+				{ async: () => resolve },
 				'content',
 				getSourceMap()
 			);
 		}).then(() => {
-			assert.isTrue(instrumentMock.calledOnce);
+			assert.equal(instrumentMock.callCount, 1);
 		});
 	});
 
 	it('handles no source map', () => {
 		return new Promise(resolve => {
-			loaderUnderTest.call(
-				{
-					async() {
-						return () => resolve();
-					}
-				},
-				'content',
-				null
-			);
+			loaderUnderTest.call({ async: () => resolve }, 'content', null);
 		}).then(() => {
-			assert.isTrue(instrumentMock.calledOnce);
+			assert.equal(instrumentMock.callCount, 1);
 		});
 	});
 
 	it('handles a source map with no sources', () => {
 		return new Promise(resolve => {
-			loaderUnderTest.call(
-				{
-					async() {
-						return () => resolve();
-					}
-				},
-				'content',
-				{}
-			);
+			loaderUnderTest.call({ async: () => resolve }, 'content', {});
 		}).then(() => {
-			assert.isTrue(instrumentMock.calledOnce);
+			assert.equal(instrumentMock.callCount, 1);
 		});
 	});
 
@@ -93,11 +83,7 @@ describe('istanbul-loader', () => {
 
 		return new Promise(resolve => {
 			loaderUnderTest.call(
-				{
-					async() {
-						return () => resolve();
-					}
-				},
+				{ async: () => resolve },
 				'content',
 				sourceMap
 			);

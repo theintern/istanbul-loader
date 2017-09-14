@@ -2,8 +2,6 @@ import * as webpack from 'webpack';
 import { createInstrumenter } from 'istanbul-lib-instrument';
 import { RawSourceMap } from 'source-map';
 
-console.log(createInstrumenter.toString());
-
 /**
  * Take a source file and run it through istanbul for instrumentation
  *
