@@ -1,3 +1,4 @@
 {
-    "suites": "_build/tests/**/*.js"
+    "suites": "_build/tests/**/*.js",
+    "coverage": "_build/src/**/*.js"
 }
