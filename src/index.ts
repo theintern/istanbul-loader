@@ -17,11 +17,15 @@ export default <loader.Loader>function(
 ) {
 	const callback = this.async()!;
 	const options = this.options;
-	const configFile = options.config || 'intern.json';
 
-	getConfig(configFile)
+	getConfig(options.config)
+		.then(({ config, file }) => {
+			// If a config file was successfully loaded, mark it as a dependency
+			this.addDependency(file);
+			return config;
+		})
 		.catch(_error => ({}))
-		.then(({ config }) => {
+		.then(config => {
 			const instrumenterOptions = {
 				produceSourceMap: true,
 				...config.instrumenterOptions
