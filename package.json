@@ -35,6 +35,7 @@
   "dependencies": {
     "@types/istanbul-lib-instrument": "~1.7.0",
     "@types/source-map": "~0.5.1",
-    "@types/webpack": "~3.0.10"
+    "@types/webpack": "~3.0.10",
+    "source-map": "~0.5.7"
   }
 }

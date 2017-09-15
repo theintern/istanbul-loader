@@ -1,6 +1,7 @@
 import { loader } from 'webpack';
 import { createInstrumenter } from 'istanbul-lib-instrument';
 import { RawSourceMap } from 'source-map';
+import { MappingItem, SourceMapConsumer, SourceMapGenerator } from 'source-map';
 import { getConfig } from 'intern/lib/node/util';
 
 /**
@@ -63,10 +64,20 @@ export default <loader.Loader>function(
 					if (error) {
 						callback(error);
 					} else {
+						const instrumentedSourceMap = instrumenter.lastSourceMap();
+						if (rawSourceMap) {
+							rawSourceMap = mergeSourceMaps(
+								instrumentedSourceMap,
+								rawSourceMap
+							);
+						} else {
+							rawSourceMap = instrumentedSourceMap;
+						}
+
 						callback(
 							null,
 							instrumentedSource,
-							JSON.stringify(instrumenter.lastSourceMap())
+							JSON.stringify(rawSourceMap)
 						);
 					}
 				},
@@ -75,6 +86,71 @@ export default <loader.Loader>function(
 		});
 };
 
+/**
+ * Type guard for RawSourceMap objects
+ */
 function isRawSourceMap(value: any): value is RawSourceMap {
 	return value && value.sources != null;
+}
+
+/**
+ * Merge a list of source maps generated through successive transforms of a
+ * single file.
+ *
+ * Maps should be in reverse order (i.e., the first map should be
+ * from the most recent transform).
+ *
+ * @param maps an array of raw source maps in order from the most recently
+ * generated map to the original map
+ * @returns a source map that maps locations in the final transformed file to
+ * the original file
+ */
+function mergeSourceMaps(...maps: RawSourceMap[]) {
+	const consumers = maps.map(map => new SourceMapConsumer(map));
+	const generator = new SourceMapGenerator({ file: maps[0].file });
+
+	// Walk through each mapping of the most recent source map
+	consumers[0].eachMapping(mapping => {
+		const original = getOriginalPosition(consumers, mapping);
+		if (original.line !== null) {
+			generator.addMapping({
+				generated: {
+					line: mapping.generatedLine,
+					column: mapping.generatedColumn!
+				},
+				original: {
+					line: original.line,
+					column: original.column!
+				},
+				source: mapping.source!,
+				name: mapping.name
+			});
+		}
+	});
+
+	return generator.toJSON();
+}
+
+/**
+ * Find the original position for a given position.
+ *
+ * @param consumers a list of source map consumers, from the most recently
+ * generated to the original
+ * @param mapping a mapping item from the most recent source map
+ * @returns a position in the original file
+ */
+function getOriginalPosition(
+	consumers: SourceMapConsumer[],
+	mapping: MappingItem
+) {
+	return consumers.reduce(
+		(original, consumer) => {
+			// Ignore missing mappings
+			if (original.line === null) {
+				return original;
+			}
+			return consumer.originalPositionFor(original);
+		},
+		{ line: mapping.generatedLine, column: mapping.generatedColumn }
+	);
 }
