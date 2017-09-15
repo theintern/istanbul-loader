@@ -50,3 +50,22 @@ rules: [
 	...
 ]
 ```
+
+## Configuration
+
+Options can be passed using the standard webpack `options` property:
+
+```js
+rules: [
+    {
+	    test: /src\/.(\.ts$/,
+		use: {
+			loader: '@theintern/istanbul-loader',
+			options: { config: 'tests/intern.json' }
+		}
+	},
+	...
+]
+```
+
+Currently the only option used by the loader is 'config', which should point to an [Intern config file](https://github.com/theintern/intern/blob/master/docs/configuration.md#config-file). The loader will use values for `coverageVariable` and `instrumenterOptions` from the Intern config, if present.
