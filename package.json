@@ -1,5 +1,5 @@
 {
-	"name": "istanbul-loader",
+	"name": "@theintern/istanbul-loader",
 	"version": "1.0.0-pre",
 	"description": "A webpack loader that adds code coverage instrumentation",
 	"main": "index.js",
