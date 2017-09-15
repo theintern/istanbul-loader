@@ -53,6 +53,8 @@ rules: [
 
 ## Configuration
 
+The rule test should only match source files, not all `.ts` or `.js` files, so as not to instrument tests or support files.
+
 Options can be passed using the standard webpack `options` property:
 
 ```js
