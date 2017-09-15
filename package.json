@@ -1,6 +1,6 @@
 {
   "name": "@theintern/istanbul-loader",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-pre",
   "description": "A webpack loader that adds code coverage instrumentation",
   "main": "index.js",
   "scripts": {
