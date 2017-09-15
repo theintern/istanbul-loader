@@ -21,10 +21,12 @@ export default <loader.Loader>function(
 	getConfig(options.config)
 		.then(({ config, file }) => {
 			// If a config file was successfully loaded, mark it as a dependency
-			this.addDependency(file);
+			if (file) {
+				this.addDependency(file);
+			}
 			return config;
 		})
-		.catch(_error => ({}))
+		.catch(_error => Object.create(null))
 		.then(config => {
 			const instrumenterOptions = {
 				produceSourceMap: true,
