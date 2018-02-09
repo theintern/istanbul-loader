@@ -1,4 +1,5 @@
 {
-    "suites": "_build/tests/**/*.js",
-    "coverage": "_build/src/**/*.js"
+    "suites": "tests/**/*.ts",
+    "plugins": "ts-node/register",
+    "filterErrorStack": true
 }
