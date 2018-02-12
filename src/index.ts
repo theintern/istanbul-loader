@@ -20,11 +20,14 @@ import { getConfig } from 'intern/lib/node/util';
  */
 export default <loader.Loader>function(
 	source: string | Buffer,
-	// TODO: remove 'any' when Webpack typings are updated
+	// TODO: remove 'any' when webpack typings are updated
 	sourceMap?: any
 ) {
 	const callback = this.async()!;
 	const options = Object.assign({}, getOptions(this));
+
+	// TODO remove this and just use `sourceMap` when webpack typings are
+	// updated
 	const _sourceMap = <RawSourceMap>sourceMap;
 
 	getConfig(options.config)
@@ -82,10 +85,11 @@ export default <loader.Loader>function(
 								updatedSourceMap = instrumentedSourceMap;
 							}
 
-							// TODO: remove 'any' when Webpack typings are updated
 							callback(
 								null,
 								instrumentedSource,
+								// TODO: remove 'any' when webpack typings are
+								// updated
 								<any>updatedSourceMap
 							);
 						} catch (err) {
