@@ -1,4 +1,4 @@
-import { SinonSandbox, sandbox as Sandbox, SinonStub } from 'sinon';
+import { SinonSandbox, sandbox as Sandbox, SinonStub, SinonSpy } from 'sinon';
 import { SourceMapGenerator, RawSourceMap } from 'source-map';
 import {
 	disable as disableMockery,
@@ -46,25 +46,25 @@ describe('istanbul-loader', () => {
 	let instrumentMock: SinonStub;
 	let sourceMapMock: SinonStub;
 	let sandbox: SinonSandbox;
+	let createInstrumenterSpy: SinonSpy;
 
 	before(() => {
 		sandbox = Sandbox.create();
 		instrumentMock = sandbox.stub().callsArg(2);
 		sourceMapMock = sandbox.stub().returns(getSourceMap(false));
 
+		const createInstrumenter = () => {
+			return {
+				instrument: instrumentMock,
+				lastSourceMap: sourceMapMock
+			};
+		};
+
+		createInstrumenterSpy = sandbox.spy(createInstrumenter);
+
 		enableMockery({ useCleanCache: true });
 		registerMock('istanbul-lib-instrument', {
-			createInstrumenter() {
-				return {
-					instrument: instrumentMock,
-					lastSourceMap: sourceMapMock
-				};
-			}
-		});
-		registerMock('loader-utils', {
-			getOptions() {
-				return null;
-			}
+			createInstrumenter: createInstrumenterSpy
 		});
 		registerAllowable('../src/index');
 		warnOnUnregistered(false);
@@ -80,11 +80,12 @@ describe('istanbul-loader', () => {
 		sandbox.resetHistory();
 	});
 
-	function callLoader(sourceMap: RawSourceMap | null) {
+	function callLoader(sourceMap: RawSourceMap | null, config = {}) {
 		return new Promise<{ source: string; sourceMap?: RawSourceMap }>(
 			(resolve, reject) => {
 				loaderUnderTest.call(
 					{
+						query: config,
 						async: () => (
 							error: Error,
 							source: string,
@@ -103,6 +104,12 @@ describe('istanbul-loader', () => {
 			}
 		);
 	}
+
+	it('can take a config object', () => {
+		return callLoader(getSourceMap(), { instrumenterOptions: { esModules: true } }).then(() => {
+			createInstrumenterSpy.calledWith({ instrumenterOptions: { esModules: true } });
+		});
+	});
 
 	it('should call istanbul to instrument files', () => {
 		return callLoader(getSourceMap()).then(() => {
