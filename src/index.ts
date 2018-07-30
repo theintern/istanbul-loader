@@ -30,8 +30,16 @@ export default <loader.Loader>function(
 	// updated
 	const _sourceMap = <RawSourceMap>sourceMap;
 
-	getConfig(options.config)
-		.then(({ config, file }) => {
+	let configPromise: Promise<{ config: any, file?: any }>;
+
+	if (typeof options.config === 'object') {
+		configPromise = Promise.resolve(options.config);
+	}
+	else {
+		configPromise = getConfig(options.config);
+	}
+
+	configPromise.then(({ config, file }) => {
 			// If a config file was successfully loaded, mark it as a dependency
 			if (file) {
 				this.addDependency(file);
