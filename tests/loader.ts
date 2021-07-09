@@ -1,4 +1,4 @@
-import { SinonSandbox, sandbox as Sandbox, SinonStub } from 'sinon';
+import { SinonSandbox, createSandbox, SinonStub } from 'sinon';
 import { SourceMapGenerator, RawSourceMap } from 'source-map';
 import {
 	disable as disableMockery,
@@ -8,6 +8,7 @@ import {
 	registerMock,
 	deregisterMock
 } from 'mockery';
+import intern from 'intern';
 
 const { after, before, beforeEach, describe, it } = intern.getInterface('bdd');
 const { assert } = intern.getPlugin('chai');
@@ -48,7 +49,7 @@ describe('istanbul-loader', () => {
 	let sandbox: SinonSandbox;
 
 	before(() => {
-		sandbox = Sandbox.create();
+		sandbox = createSandbox();
 		instrumentMock = sandbox.stub().callsArg(2);
 		sourceMapMock = sandbox.stub().returns(getSourceMap(false));
 

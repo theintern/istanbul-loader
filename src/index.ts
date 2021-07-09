@@ -1,4 +1,4 @@
-import { loader } from 'webpack';
+import { LoaderDefinitionFunction } from 'webpack';
 import { createInstrumenter } from 'istanbul-lib-instrument';
 import { getOptions } from 'loader-utils';
 import {
@@ -18,19 +18,16 @@ import { getConfig } from 'intern/lib/node/util';
  * @param content the source code
  * @param sourceMap an optional source map
  */
-export default <loader.Loader>function(
-	source: string | Buffer,
-	// TODO: remove 'any' when webpack typings are updated
-	sourceMap?: any
+const loader: LoaderDefinitionFunction = function(
+	source,
+	sourceMap,
 ) {
 	const callback = this.async()!;
-	const options = Object.assign({}, getOptions(this));
+	const options = Object.assign({}, getOptions(this as any));
 
-	// TODO remove this and just use `sourceMap` when webpack typings are
-	// updated
-	const _sourceMap = <RawSourceMap>sourceMap;
+	const _sourceMap = sourceMap as unknown as RawSourceMap
 
-	getConfig(options.config)
+	getConfig(options.config as string)
 		.then(({ config, file }) => {
 			// If a config file was successfully loaded, mark it as a dependency
 			if (file) {
@@ -102,6 +99,8 @@ export default <loader.Loader>function(
 		});
 };
 
+export default loader;
+
 /**
  * Merge a list of source maps generated through successive transforms of a
  * single file.
@@ -125,13 +124,13 @@ function mergeSourceMaps(...maps: RawSourceMap[]) {
 			generator.addMapping({
 				generated: {
 					line: mapping.generatedLine,
-					column: mapping.generatedColumn!
+					column: mapping.generatedColumn
 				},
 				original: {
 					line: original.line,
-					column: original.column!
+					column: original.column
 				},
-				source: mapping.source!,
+				source: mapping.source,
 				name: mapping.name
 			});
 		}
